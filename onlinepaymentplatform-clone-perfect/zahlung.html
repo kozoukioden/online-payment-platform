@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zahlung & Abschluss</title>
+    <!-- Use Tailwind via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #fafafa; }
+        .header-bg { background-color: #111111; color: white; padding: 40px 20px 60px 20px; }
+        .alert-box { background-color: #e0f7fa; color: #006064; border-radius: 12px; padding: 20px; }
+        .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
+        
+        .pill { background: white; color: black; padding: 6px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; margin-right: 10px; margin-top: 15px;}
+        
+        .upload-area { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s ease; background-color: #f8fafc;}
+        .upload-area:hover, .upload-area.dragover { border-color: #3b82f6; background-color: #eff6ff; }
+        
+        .copy-btn { color: #ec4899; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; margin-top: 15px; }
+        .copy-btn:hover { text-decoration: underline; }
+
+        .form-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .form-row:last-child { border-bottom: none; }
+        .label { color: #64748b; font-size: 14px; }
+        .val { font-weight: 600; color: #1e293b; text-align: right; word-break: break-all;}
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header-bg">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-4xl font-extrabold flex items-center gap-4">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                Letzter Schritt
+            </h1>
+            <div class="flex">
+                <div class="pill">Auftrag: <span id="hdrCode" class="ml-1"></span></div>
+                <div class="pill" id="hdrProduct">opp site</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 -mt-8 relative z-10 pb-20">
+        
+        <!-- Alert -->
+        <div class="alert-box mb-8 shadow-sm border border-cyan-100 flex items-start gap-3">
+            <svg class="flex-shrink-0 mt-1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <div>
+                <p class="font-medium">Bitte überweisen Sie den Betrag auf das unten angegebene Treuhandkonto. Laden Sie anschließend ein Foto oder PDF des Überweisungsbelegs hoch, um die Bearbeitung zu beschleunigen.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- Bank Details -->
+            <div>
+                <div class="card mb-4" style="border-top: 4px solid #3b82f6;">
+                    <h4 class="font-bold text-gray-800 flex items-center gap-2 mb-6">
+                        <svg class="text-blue-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        Überweisungsdaten
+                    </h4>
+                    
+                    <div class="form-row">
+                        <span class="label">Empfänger</span>
+                        <span class="val" id="bankName">Laden...</span>
+                    </div>
+                    <div class="form-row">
+                        <span class="label">IBAN</span>
+                        <span class="val" id="bankIban">Laden...</span>
+                    </div>
+                    <div class="form-row">
+                        <span class="label">BIC</span>
+                        <span class="val" id="bankBic">Laden...</span>
+                    </div>
+                    <div class="form-row" style="background:#fef2f2; padding: 12px; border-radius: 8px; margin-top: 10px; border: 1px solid #fee2e2;">
+                        <span class="label text-red-600 font-bold">Verwendungszweck</span>
+                        <span class="val text-red-700 font-bold" id="bankDesc">Laden...</span>
+                    </div>
+                    <p class="text-xs text-red-500 mt-2 font-medium">WICHTIG: Bitte geben Sie diesen Verwendungszweck unbedingt bei der Überweisung an!</p>
+                </div>
+                
+                <div class="copy-btn" onclick="copyDetails()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    Rechnungsdetails kopieren
+                </div>
+                <div id="copyNotice" class="text-green-600 text-sm mt-2 hidden font-medium">Kopiert!</div>
+            </div>
+
+            <!-- Upload Area -->
+            <div>
+                <div class="card" style="border-top: 4px solid #10b981;">
+                    <h4 class="font-bold text-gray-800 flex items-center gap-2 mb-6">
+                        <svg class="text-green-500" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Zahlungsnachweis hochladen
+                    </h4>
+                    
+                    <form id="uploadForm">
+                        <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
+                            <svg class="mx-auto text-gray-400 mb-3" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                            <p class="text-gray-600 font-medium text-sm mb-1">Klicken Sie hier oder ziehen Sie eine Datei hinein</p>
+                            <p class="text-gray-400 text-xs">Unterstützt: JPEG, PNG, PDF (Max. 5MB)</p>
+                            <input type="file" id="fileInput" class="hidden" accept="image/jpeg,image/png,application/pdf">
+                        </div>
+                        
+                        <div id="fileInfo" class="mt-4 text-sm text-blue-600 font-medium hidden flex items-center gap-2">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                            <span id="fileName"></span>
+                        </div>
+
+                        <div id="statusMsg" class="mt-4 text-sm font-medium hidden"></div>
+
+                        <button type="submit" id="submitBtn" class="w-full bg-black text-white font-bold py-3 px-4 rounded-xl shadow-lg mt-6 hover:bg-gray-800 transition flex items-center justify-center gap-2">
+                            Beleg hochladen & Abschließen
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-12 text-gray-600 text-sm leading-relaxed border-t border-gray-200 pt-8">
+            <h4 class="font-bold text-gray-800 text-base mb-2">Was ist ein OPP Treuhandkonto?</h4>
+            <p class="mb-6">Bei diesem Konto handelt es sich um ein von OPP bereitgestelltes Geschäftskonto, das einen sicheren Zahlungsverkehr gewährleistet. Die Auszahlung an den Verkäufer erfolgt erst, nachdem der Käufer den Erhalt sowie die Ordnungsmäßigkeit der Ware bestätigt hat. Name und Verwendungszweck dienen ausschließlich der eindeutigen Zuordnung der Zahlung.</p>
+
+            <h4 class="font-bold text-gray-800 text-base mb-2">OPP Käuferschutz</h4>
+            <p>Nach dem Zahlungseingang wird Ihre Bestellung innerhalb von 1-3 Werktagen versendet. Sie erhalten hierzu einen gesonderten Tracking-Link. Falls es zu Problemen kommen sollte, kontaktieren Sie bitte unseren Kundendienst.</p>
+        </div>
+
+    </div>
+
+    <!-- Warning Modal (No Receipt) -->
+    <div id="noReceiptModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
+            <div class="p-6 text-center border-b border-gray-100 relative pt-8">
+                <button type="button" onclick="closeWarningModal()" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+                <div class="w-16 h-16 mx-auto mb-4 text-blue-600 flex items-center justify-center">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M4 10h3v7H4v-7zM10.5 10h3v7h-3v-7zM2 19h20v3H2v-3zM17 10h3v7h-3v-7zM12 1L2 6v2h20V6L12 1z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Zahlungsbestätigung erforderlich</h3>
+                <p class="text-sm font-bold text-gray-700 mb-4">Bitte bestätigen Sie Ihre Überweisung</p>
+                <p class="text-sm text-gray-600 font-medium px-4">Wenn Sie ohne Beleg fortfahren, kann die Bearbeitungszeit bis zu 3 Werktage dauern.</p>
+            </div>
+            
+            <div class="p-4 bg-red-50 text-red-800 m-6 rounded-xl border border-red-100 text-center">
+                <div class="font-bold text-sm mb-1 flex items-center justify-center gap-2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    WICHTIGE WARNUNG
+                </div>
+                <div class="font-bold text-base mb-1 tracking-tight">DIES IST KEIN LASTSCHRIFT-MANDAT!</div>
+                <div class="text-xs">Sie müssen die Überweisung manuell über Ihr Online-Banking durchführen.</div>
+            </div>
+
+            <div class="px-5 py-4 mb-6 flex items-start gap-3 bg-amber-50 mx-6 rounded-lg text-amber-800 text-xs border border-amber-200">
+                <svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path><path d="M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+                <span><strong>Bestätigung:</strong> Klicken Sie nur "Ja", wenn Sie die Überweisung bereits erfolgreich getätigt haben.</span>
+            </div>
+
+            <div class="p-6 bg-gray-50 flex flex-col sm:flex-row gap-4 border-t border-gray-100">
+                <button type="button" onclick="closeWarningModal()" class="flex-1 py-3 px-4 bg-white border border-red-300 text-red-500 rounded-xl font-medium hover:bg-red-50 transition text-sm flex items-center justify-center gap-2 shadow-sm">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    Nein, noch nicht
+                </button>
+                <button type="button" onclick="proceedWithoutReceipt()" class="flex-1 py-3 px-4 bg-emerald-700 text-white rounded-xl font-medium hover:bg-emerald-800 transition shadow-md text-sm flex items-center justify-center gap-2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Ja, Überweisung getätigt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentOrder = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const orderData = sessionStorage.getItem('currentOrder');
+            if(!orderData) {
+                window.location.href = 'auftrag-verfolgen.html';
+                return;
+            }
+            currentOrder = JSON.parse(orderData);
+
+            document.getElementById('hdrCode').innerText = currentOrder.auftragsnummer || '';
+            document.getElementById('hdrProduct').innerText = currentOrder.produkt || '';
+            
+            document.getElementById('bankName').innerText = currentOrder.iban_sahibi || '-';
+            document.getElementById('bankIban').innerText = currentOrder.iban || '-';
+            document.getElementById('bankBic').innerText = currentOrder.bic || '-';
+            document.getElementById('bankDesc').innerText = currentOrder.aciklama || currentOrder.auftragsnummer || '-';
+        });
+
+        function copyDetails() {
+            const text = `Empfänger: ${currentOrder.iban_sahibi}\nIBAN: ${currentOrder.iban}\nBIC: ${currentOrder.bic}\nVerwendungszweck: ${currentOrder.aciklama || currentOrder.auftragsnummer}`;
+            navigator.clipboard.writeText(text).then(() => {
+                const notice = document.getElementById('copyNotice');
+                notice.classList.remove('hidden');
+                setTimeout(() => notice.classList.add('hidden'), 3000);
+            });
+        }
+
+        // File Drag & Drop Logic
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const submitBtn = document.getElementById('submitBtn');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        function preventDefaults (e) { e.preventDefault(); e.stopPropagation(); }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            let dt = e.dataTransfer;
+            let files = dt.files;
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            if(files.length > 0) {
+                fileInput.files = files; // Assign to input
+                fileName.innerText = files[0].name;
+                fileInfo.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            }
+        }
+
+        function closeWarningModal() {
+            document.getElementById('noReceiptModal').classList.add('hidden');
+        }
+
+        function proceedWithoutReceipt() {
+            sessionStorage.removeItem('currentOrder');
+            window.location.href = 'danke.html';
+        }
+
+        // Form Submit
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const file = fileInput.files[0];
+            
+            // If no file uploaded, show warning modal instead of proceeding immediately
+            if(!file) {
+                document.getElementById('noReceiptModal').classList.remove('hidden');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Wird hochgeladen...';
+            
+            const formData = new FormData();
+            formData.append('receipt', file);
+            formData.append('auftragsnummer', currentOrder.auftragsnummer);
+
+            try {
+                const res = await fetch('/api/orders/upload-receipt', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    sessionStorage.removeItem('currentOrder');
+                    window.location.href = 'danke.html';
+                } else {
+                    showError(data.error || 'Fehler beim Hochladen.');
+                }
+            } catch (err) {
+                showError('Netzwerkfehler. Bitte versuchen Sie es erneut.');
+            }
+        });
+
+        function showError(msg) {
+            const statusMsg = document.getElementById('statusMsg');
+            statusMsg.innerText = msg;
+            statusMsg.classList.remove('hidden');
+            statusMsg.classList.add('text-red-600');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Beleg hochladen & Abschließen <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
+        }
+    </script>
+</body>
+</html>
+
+<script src="/chat.js"></script>

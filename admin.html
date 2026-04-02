@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kundenverwaltung - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Auftragsverwaltung</h1>
+            <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 font-semibold">
+                + Neuer Auftrag
+            </button>
+        </div>
+
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
+            <table class="min-w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-gray-50 border-b">
+                    <tr>
+                        <th class="px-6 py-4 font-medium text-gray-900">ID</th>
+                        <th class="px-6 py-4 font-medium text-gray-900">Kundenname</th>
+                        <th class="px-6 py-4 font-medium text-gray-900">AuftragsNr</th>
+                        <th class="px-6 py-4 font-medium text-gray-900">Produkt</th>
+                        <th class="px-6 py-4 font-medium text-gray-900">Preis</th>
+                        <th class="px-6 py-4 font-medium text-gray-900">Beleg</th>
+                        <th class="px-6 py-4 font-medium text-gray-900">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody" class="divide-y divide-gray-100">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="orderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="modalTitle" class="text-2xl font-bold text-gray-800">Auftrag erstellen</h2>
+                    <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+                
+                <form id="orderForm" onsubmit="saveOrder(event)">
+                    <input type="hidden" id="orderId">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kundenname</label>
+                            <input type="text" id="kundenname" required class="w-full border rounded px-3 py-2 outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Auftragsnummer (Code)</label>
+                            <input type="text" id="auftragsnummer" required class="w-full border rounded px-3 py-2 outline-none focus:border-blue-500">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
+                            <input type="text" id="adresse" required class="w-full border rounded px-3 py-2 outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Produkt</label>
+                            <input type="text" id="produkt" required class="w-full border rounded px-3 py-2 outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Preis (z.B. 100€)</label>
+                            <input type="text" id="preis" required class="w-full border rounded px-3 py-2 outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">IBAN</label>
+                            <input type="text" id="iban" class="w-full border rounded px-3 py-2 outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">IBAN Inhaber</label>
+                            <input type="text" id="iban_inhaber" class="w-full border rounded px-3 py-2 outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">BIC</label>
+                            <input type="text" id="bic" class="w-full border rounded px-3 py-2 outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Beschreibung</label>
+                            <input type="text" id="beschreibung" class="w-full border rounded px-3 py-2 outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-50">Abbrechen</button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Speichern</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/admin/orders';
+        const AUTH_HEADER = 'Basic ' + btoa('admin:123456');
+
+        let orders = [];
+
+        async function fetchOrders() {
+            try {
+                const response = await fetch(API_URL, {
+                    headers: { 'Authorization': AUTH_HEADER }
+                });
+                orders = await response.json();
+                renderTable();
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+                alert("Fehler beim Laden der Aufträge");
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+            
+            orders.forEach(order => {
+                const belegHtml = order.beleg 
+                    ? `<a href="${order.beleg}" target="_blank" class="text-blue-600 hover:underline">Ansehen</a>`
+                    : '<span class="text-gray-400">Kein Beleg</span>';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">${order.id}</td>
+                        <td class="px-6 py-4 font-semibold text-gray-800">${escapeHtml(order.kundenname)}</td>
+                        <td class="px-6 py-4"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold">${escapeHtml(order.auftragsnummer)}</span></td>
+                        <td class="px-6 py-4 truncate max-w-xs">${escapeHtml(order.produkt)}</td>
+                        <td class="px-6 py-4">${escapeHtml(order.preis)}</td>
+                        <td class="px-6 py-4">${belegHtml}</td>
+                        <td class="px-6 py-4 flex gap-3">
+                            <button onclick="editOrder(${order.id})" class="text-indigo-600 hover:text-indigo-900 font-medium">Bearbeiten</button>
+                            <button onclick="deleteOrder(${order.id})" class="text-red-600 hover:text-red-900 font-medium">Löschen</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openModal(order = null) {
+            document.getElementById('orderForm').reset();
+            document.getElementById('orderId').value = '';
+            document.getElementById('modalTitle').innerText = 'Auftrag erstellen';
+
+            if (order) {
+                document.getElementById('modalTitle').innerText = 'Auftrag bearbeiten';
+                document.getElementById('orderId').value = order.id;
+                document.getElementById('kundenname').value = order.kundenname || '';
+                document.getElementById('auftragsnummer').value = order.auftragsnummer || '';
+                document.getElementById('adresse').value = order.adresse || '';
+                document.getElementById('produkt').value = order.produkt || '';
+                document.getElementById('preis').value = order.preis || '';
+                document.getElementById('iban').value = order.iban || '';
+                document.getElementById('iban_inhaber').value = order.iban_inhaber || '';
+                document.getElementById('bic').value = order.bic || '';
+                document.getElementById('beschreibung').value = order.beschreibung || '';
+            }
+            document.getElementById('orderModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('orderModal').classList.add('hidden');
+        }
+
+        function editOrder(id) {
+            const order = orders.find(o => o.id === id);
+            if (order) openModal(order);
+        }
+
+        async function deleteOrder(id) {
+            if (!confirm('Sind Sie sicher, dass Sie diesen Auftrag löschen möchten?')) return;
+            
+            try {
+                await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': AUTH_HEADER }
+                });
+                fetchOrders();
+            } catch (error) {
+                console.error("Error deleting order:", error);
+            }
+        }
+
+        async function saveOrder(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('orderId').value;
+            const payload = {
+                kundenname: document.getElementById('kundenname').value,
+                auftragsnummer: document.getElementById('auftragsnummer').value,
+                adresse: document.getElementById('adresse').value,
+                produkt: document.getElementById('produkt').value,
+                preis: document.getElementById('preis').value,
+                iban: document.getElementById('iban').value,
+                iban_inhaber: document.getElementById('iban_inhaber').value,
+                bic: document.getElementById('bic').value,
+                beschreibung: document.getElementById('beschreibung').value
+            };
+
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${API_URL}/${id}` : API_URL;
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': AUTH_HEADER
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (response.ok) {
+                    closeModal();
+                    fetchOrders();
+                } else {
+                    const err = await response.json();
+                    alert("Speichern fehlgeschlagen: " + (err.error || 'Unbekannter Fehler'));
+                }
+            } catch (error) {
+                console.error("Error saving order:", error);
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        // Initial fetch
+        fetchOrders();
+    </script>
+</body>
+</html>

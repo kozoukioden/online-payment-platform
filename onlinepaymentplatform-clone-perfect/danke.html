@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vielen Dank - Online Payment Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .success-animation {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0;
+            transform: scale(0.5);
+        }
+        @keyframes popIn {
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-black text-white py-4 px-6 md:px-12 flex justify-center items-center sticky top-0 z-50 shadow-md">
+        <a href="/" class="flex items-center gap-2">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="text-white"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="font-bold text-xl tracking-tight">Online Payment Platform</span>
+        </a>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl shadow-xl w-full max-w-lg p-10 md:p-14 text-center success-animation border border-gray-100 flex flex-col items-center">
+            
+            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
+                <svg class="text-green-500 w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">Vielen Dank!</h1>
+            
+            <p class="text-lg text-gray-600 mb-8 leading-relaxed max-w-sm">
+                Ihre Daten wurden erfolgreich übermittelt. Wir werden Ihre Anfrage in Kürze bearbeiten und Sie benachrichtigen, sobald der Vorgang abgeschlossen ist.
+            </p>
+            
+            <a href="/" class="w-full bg-black text-white font-bold py-4 px-6 rounded-2xl shadow-lg hover:bg-gray-800 hover:shadow-xl transition-all flex items-center justify-center gap-2 text-lg">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Zurück zur Startseite
+            </a>
+            
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6 mt-auto">
+        <div class="container mx-auto px-6 text-center text-gray-500 text-sm">
+            &copy; 2024 Online Payment Platform. Alle Rechte vorbehalten.
+        </div>
+    </footer>
+
+    <script src="/chat.js"></script>
+</body>
+</html>

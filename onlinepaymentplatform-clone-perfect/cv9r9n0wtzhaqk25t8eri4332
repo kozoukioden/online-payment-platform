@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M21,4H3A1,1,0,0,0,2,5V19a1,1,0,0,0,1,1H21a1,1,0,0,0,1-1V5A1,1,0,0,0,21,4ZM11,10H8.5a0.5,0.5,0,0,0-.5.5v3a0.5,0.5,0,0,0,.5.5H11v2H8.5A2.5,2.5,0,0,1,6,13.5v-3A2.5,2.5,0,0,1,8.5,8H11v2Zm7,0H15.5a0.5,0.5,0,0,0-.5.5v3a0.5,0.5,0,0,0,.5.5H18v2H15.5A2.5,2.5,0,0,1,13,13.5v-3A2.5,2.5,0,0,1,15.5,8H18v2Z" class="large-icon" style="fill: black" id="closed-caption-filled-icon-large"/>
+</svg>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="closed-caption-large" data-supported-dps="24x24" fill="currentColor">
+  <path fill="white" d="M20 6v12H4V6h16m1-2H3a1 1 0 00-1 1v14a1 1 0 001 1h18a1 1 0 001-1V5a1 1 0 00-1-1zm-10 6V8H8.5A2.5 2.5 0 006 10.5v3A2.5 2.5 0 008.5 16H11v-2H8.5a.5.5 0 01-.5-.5v-3a.5.5 0 01.5-.5H11zm7 0V8h-2.5a2.5 2.5 0 00-2.5 2.5v3a2.5 2.5 0 002.5 2.5H18v-2h-2.5a.5.5 0 01-.5-.5v-3a.5.5 0 01.5-.5H18z"/>
+</svg>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bestellübersicht</title>
+    <!-- Use Tailwind via CDN for rapid pixel-perfect styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #fafafa; }
+        .header-bg { background-color: #111111; color: white; padding: 40px 20px 60px 20px; }
+        .pink-highlight { background-color: #ffb3c6; color: #000; padding: 4px 12px; border-radius: 20px; font-weight: bold; display: inline-block; }
+        .green-total { color: #1e7041; font-size: 24px; font-weight: 800; }
+        .alert-box { background-color: #e0f7fa; color: #006064; border-radius: 12px; padding: 20px; }
+        .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); height: 100%; border: 1px solid #f0f0f0; border-left: 4px solid #111;}
+        .card-gray { background: #f3f4f6; border-left: none;}
+        
+        .pill { background: white; color: black; padding: 6px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; margin-right: 10px; margin-top: 15px;}
+        .footer-card { max-width: 500px; margin: 40px auto; background: white; border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header-bg">
+        <div class="max-w-5xl mx-auto">
+            <h1 class="text-4xl font-extrabold flex items-center gap-4">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                Bestellübersicht
+            </h1>
+            <div class="flex">
+                <div class="pill">Auftrag: <span id="hdrCode" class="ml-1"></span></div>
+                <div class="pill" id="hdrProduct">opp site</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-5xl mx-auto px-4 -mt-8 relative z-10 pb-20">
+        
+        <!-- Alert -->
+        <div class="alert-box mb-8 shadow-sm border border-cyan-100">
+            <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                Sehr geehrte/r <span id="custName">Kunde</span>
+            </h3>
+            <p class="text-sm opacity-90">Bitte überprüfen Sie Ihre Bestelldaten sorgfältig und bestätigen Sie diese, um mit der sicheren Zahlung fortzufahren.</p>
+        </div>
+
+        <!-- 3 Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Address 1 -->
+            <div class="card" style="border-left-color: #2563eb;">
+                <h4 class="font-bold text-gray-800 flex items-center gap-2 mb-4">
+                    <svg class="text-blue-600" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Rechnungsadresse
+                </h4>
+                <div class="pl-3 border-l-2 border-blue-400 text-gray-600 text-sm leading-relaxed" id="addr1">
+                    Adresse
+                </div>
+            </div>
+
+            <!-- Address 2 -->
+            <div class="card" style="border-left-color: #16a34a;">
+                <h4 class="font-bold text-gray-800 flex items-center gap-2 mb-4">
+                    <svg class="text-green-600" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                    Lieferadresse
+                </h4>
+                <div class="pl-3 border-l-2 border-green-500 text-gray-600 text-sm leading-relaxed" id="addr2">
+                    Adresse
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="card card-gray shadow-none">
+                <h4 class="font-bold text-gray-800 flex items-center gap-2 mb-4">
+                    <svg class="text-yellow-500" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+                    Produktdetails
+                </h4>
+                
+                <p class="font-bold text-gray-900 mb-4" id="prodName">Produkt</p>
+                <p class="text-sm text-gray-600 mb-2">Menge: <span class="font-semibold text-gray-800">1 Stück</span></p>
+                <p class="text-sm text-gray-600 mb-2">Preis (inkl. MwSt.):</p>
+                <div class="mb-6"><span class="pink-highlight" id="priceBadge">0€</span></div>
+                
+                <div class="pt-4 border-t border-gray-200 flex justify-between items-center">
+                    <span class="font-bold text-gray-800">Gesamtsumme:</span>
+                    <span class="green-total" id="totalPrice">0€</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer Action Box -->
+        <div class="footer-card">
+            <div class="flex items-center justify-center gap-2 text-green-700 font-bold mb-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                Bestellung bestätigen
+            </div>
+            <p class="text-xs text-gray-500 mb-6">Mit der Bestätigung stimmen Sie unseren AGB zu und werden zur sicheren Zahlung weitergeleitet.</p>
+            
+            <button onclick="proceed()" class="w-full bg-black text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:bg-gray-800 transition flex items-center justify-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                Zur Zahlung
+            </button>
+            
+            <p class="text-xs text-red-500 font-semibold mt-4 flex items-center justify-center gap-1 cursor-pointer hover:underline">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                Meine Daten stimmen nicht überein
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const orderData = sessionStorage.getItem('currentOrder');
+            if(!orderData) {
+                // Redirect back if no order in session
+                window.location.href = 'auftrag-verfolgen.html';
+                return;
+            }
+
+            const order = JSON.parse(orderData);
+
+            document.getElementById('hdrCode').innerText = order.auftragsnummer || '';
+            document.getElementById('hdrProduct').innerText = order.produkt || '';
+            document.getElementById('custName').innerText = order.kundenname || '';
+            document.getElementById('addr1').innerText = order.adresse || '';
+            document.getElementById('addr2').innerText = order.adresse || '';
+            document.getElementById('prodName').innerText = order.produkt || '';
+            
+            // Format price
+            const price = order.preis ? (order.preis + (order.preis.includes('€') ? '' : '€')) : '0€';
+            document.getElementById('priceBadge').innerText = price;
+            document.getElementById('totalPrice').innerText = price;
+        });
+
+        function proceed() {
+            window.location.href = 'zahlung.html';
+        }
+    </script>
+</body>
+</html>
+
+<script src="/chat.js"></script>
