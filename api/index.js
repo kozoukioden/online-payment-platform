@@ -12,15 +12,14 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const staticPath = path.join(__dirname, 'onlinepaymentplatform-clone-perfect');
-app.use(express.static(staticPath));
-// We also need to serve uploads so admin can view them
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// We only need to serve uploads if they exist in /tmp or root (not recommended on Vercel)
+// On Vercel, we'll serve from /tmp for the session
+app.use('/uploads', express.static('/tmp'));
 
 // Storage configuration for Multer
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, 'uploads/'))
+        cb(null, '/tmp')
     },
     filename: function (req, file, cb) {
         // preserve original extension
@@ -143,15 +142,8 @@ app.get(['/admin', '/admin.html'], (req, res) => {
     }
 });
 
-// Fallback all missing routes to index.html to allow SPA-like behavior if needed
-// (We could also leave it strictly to express.static)
 app.use((req, res, next) => {
-  // Only fallback if the path doesn't start with /api or /uploads and is a GET request
-  if(req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/uploads') && req.path !== '/admin' && req.path !== '/admin.html') {
-      res.sendFile(path.join(staticPath, 'index.html'));
-  } else {
-      res.status(404).json({error: "Not found"});
-  }
+    res.status(404).json({error: "Not found"});
 });
 
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
