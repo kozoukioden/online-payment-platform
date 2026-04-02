@@ -5,7 +5,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # Database & Uploads (User Data)
-orders.db
 uploads/
 
 # Development & Scraping Scripts (Cleanup)
