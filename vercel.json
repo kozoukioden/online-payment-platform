@@ -1,9 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "api/index.js", "use": "@vercel/node" },
-    { "src": "onlinepaymentplatform-clone-perfect/**", "use": "@vercel/static" }
-  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/admin(.*)", "destination": "/api/index" },
