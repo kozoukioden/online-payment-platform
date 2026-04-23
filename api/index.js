@@ -43,8 +43,8 @@ app.get('/api/orders/track/:code', async (req, res) => {
 });
 
 // APIs for Admin Panel
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = '123456';
+const ADMIN_USER = 'xebec';
+const ADMIN_PASS = 'Mdl96488178.';
 
 // Basic middleware for admin endpoints
 app.use('/api/admin', (req, res, next) => {
