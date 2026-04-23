@@ -137,15 +137,6 @@ app.get(['/admin', '/admin.html'], (req, res) => {
     }
 });
 
-// Serve frontend static files
-const frontendPath = path.join(__dirname, '../onlinepaymentplatform-clone-perfect');
-app.use(express.static(frontendPath));
-
-// Route root to index.html explicitly
-app.get('/', (req, res) => {
-    res.sendFile(path.join(frontendPath, 'index.html'));
-});
-
 app.use((req, res, next) => {
     res.status(404).json({error: "Not found"});
 });
