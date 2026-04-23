@@ -4,6 +4,7 @@
     { "source": "/api/(.*)", "destination": "/api/index.js" },
     { "source": "/admin(.*)", "destination": "/api/index.js" },
     { "source": "/uploads/(.*)", "destination": "/api/index.js" },
+    { "source": "/", "destination": "/onlinepaymentplatform-clone-perfect/index.html" },
     { "source": "/(.*)", "destination": "/onlinepaymentplatform-clone-perfect/$1" }
   ]
 }
