@@ -29,17 +29,17 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // API: Get order by Tracking Code
-app.get('/api/orders/track/:code', (req, res) => {
-    const code = req.params.code;
-    db.get('SELECT * FROM orders WHERE auftragsnummer = ?', [code], (err, row) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        if (!row) {
+app.get('/api/orders/track/:code', async (req, res) => {
+    try {
+        const code = req.params.code;
+        const result = await db.query('SELECT * FROM orders WHERE auftragsnummer = $1', [code]);
+        if (result.rows.length === 0) {
             return res.status(404).json({ error: "Order not found" });
         }
-        res.json(row);
-    });
+        res.json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // APIs for Admin Panel
@@ -48,9 +48,6 @@ const ADMIN_PASS = '123456';
 
 // Basic middleware for admin endpoints
 app.use('/api/admin', (req, res, next) => {
-    // In a real app we'd use sessions or JWT.
-    // For this simple panel, we might just pass headers or use basic auth.
-    // Since it's a quick frontend-only protection model, we'll use a specific header.
     const auth = req.headers['authorization'];
     if (auth === `Basic ${Buffer.from(ADMIN_USER + ':' + ADMIN_PASS).toString('base64')}`) {
         return next();
@@ -59,74 +56,72 @@ app.use('/api/admin', (req, res, next) => {
 });
 
 // Get all orders
-app.get('/api/admin/orders', (req, res) => {
-    db.all('SELECT * FROM orders ORDER BY created_at DESC', [], (err, rows) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        res.json(rows);
-    });
+app.get('/api/admin/orders', async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM orders ORDER BY created_at DESC');
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Create new order
-app.post('/api/admin/orders', (req, res) => {
-    const { kundenname, adresse, produkt, preis, auftragsnummer, iban, iban_inhaber, bic, beschreibung } = req.body;
-    db.run(
-        `INSERT INTO orders (kundenname, adresse, produkt, preis, auftragsnummer, iban, iban_inhaber, bic, beschreibung)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [kundenname, adresse, produkt, preis, auftragsnummer, iban, iban_inhaber, bic, beschreibung],
-        function(err) {
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-            res.json({ id: this.lastID });
-        }
-    );
+app.post('/api/admin/orders', async (req, res) => {
+    try {
+        const { kundenname, adresse, produkt, preis, auftragsnummer, iban, iban_inhaber, bic, beschreibung } = req.body;
+        const result = await db.query(
+            `INSERT INTO orders (kundenname, adresse, produkt, preis, auftragsnummer, iban, iban_inhaber, bic, beschreibung)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+            [kundenname, adresse, produkt, preis, auftragsnummer, iban, iban_inhaber, bic, beschreibung]
+        );
+        res.json({ id: result.rows[0].id });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Edit order
-app.put('/api/admin/orders/:id', (req, res) => {
-    const { kundenname, adresse, produkt, preis, auftragsnummer, iban, iban_inhaber, bic, beschreibung } = req.body;
-    db.run(
-        `UPDATE orders SET kundenname=?, adresse=?, produkt=?, preis=?, auftragsnummer=?, iban=?, iban_inhaber=?, bic=?, beschreibung=? WHERE id=?`,
-        [kundenname, adresse, produkt, preis, auftragsnummer, iban, iban_inhaber, bic, beschreibung, req.params.id],
-        function(err) {
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-            res.json({ success: true });
-        }
-    );
+app.put('/api/admin/orders/:id', async (req, res) => {
+    try {
+        const { kundenname, adresse, produkt, preis, auftragsnummer, iban, iban_inhaber, bic, beschreibung } = req.body;
+        await db.query(
+            `UPDATE orders SET kundenname=$1, adresse=$2, produkt=$3, preis=$4, auftragsnummer=$5, iban=$6, iban_inhaber=$7, bic=$8, beschreibung=$9 WHERE id=$10`,
+            [kundenname, adresse, produkt, preis, auftragsnummer, iban, iban_inhaber, bic, beschreibung, req.params.id]
+        );
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Delete order
-app.delete('/api/admin/orders/:id', (req, res) => {
-    db.run(`DELETE FROM orders WHERE id=?`, [req.params.id], function(err) {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
+app.delete('/api/admin/orders/:id', async (req, res) => {
+    try {
+        await db.query('DELETE FROM orders WHERE id=$1', [req.params.id]);
         res.json({ success: true });
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Customer Route: Upload Receipt
-app.post('/api/orders/upload-receipt', upload.single('receipt'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: "No file uploaded" });
-    }
-    const orderCode = req.body.auftragsnummer;
-    if (!orderCode) {
-        return res.status(400).json({ error: "Missing order code" });
-    }
-    
-    const belegUrl = '/uploads/' + req.file.filename;
-
-    db.run('UPDATE orders SET beleg=? WHERE auftragsnummer=?', [belegUrl, orderCode], function(err) {
-        if (err) {
-            return res.status(500).json({ error: err.message });
+app.post('/api/orders/upload-receipt', upload.single('receipt'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: "No file uploaded" });
         }
+        const orderCode = req.body.auftragsnummer;
+        if (!orderCode) {
+            return res.status(400).json({ error: "Missing order code" });
+        }
+        
+        const belegUrl = '/uploads/' + req.file.filename;
+
+        await db.query('UPDATE orders SET beleg=$1 WHERE auftragsnummer=$2', [belegUrl, orderCode]);
         res.json({ success: true, url: belegUrl });
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Serve the admin panel itself with basic auth protection natively for simplicity

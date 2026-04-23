@@ -1,40 +1,45 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+require('dotenv').config();
+const { Pool } = require('pg');
 
-const isVercel = process.env.VERCEL === '1' || !!process.env.VERCEL;
-const dbPath = path.join(__dirname, 'orders.db');
-
-const mode = isVercel 
-    ? sqlite3.OPEN_READONLY 
-    : (sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE);
-
-const db = new sqlite3.Database(dbPath, mode, (err) => {
-    if (err) {
-        console.error('Error opening database', err.message);
-    } else {
-        console.log(`Connected to the SQLite database (${isVercel ? 'READ-ONLY' : 'READ-WRITE'}).`);
-        
-        if (!isVercel) {
-            db.run(`CREATE TABLE IF NOT EXISTS orders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                kundenname TEXT,
-                adresse TEXT,
-                produkt TEXT,
-                preis TEXT,
-                auftragsnummer TEXT UNIQUE,
-                iban TEXT,
-                iban_inhaber TEXT,
-                bic TEXT,
-                beschreibung TEXT,
-                beleg TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )`, (err) => {
-                if (err) {
-                    console.error("Error creating table", err);
-                }
-            });
-        }
-    }
+const pool = new Pool({
+    connectionString: process.env.POSTGRES_URL,
 });
 
-module.exports = db;
+pool.on('error', (err, client) => {
+    console.error('Unexpected error on idle client', err);
+    process.exit(-1);
+});
+
+// Initialize the database table if it doesn't exist
+const initDb = async () => {
+    try {
+        const client = await pool.connect();
+        try {
+            await client.query(`
+                CREATE TABLE IF NOT EXISTS orders (
+                    id SERIAL PRIMARY KEY,
+                    kundenname TEXT,
+                    adresse TEXT,
+                    produkt TEXT,
+                    preis TEXT,
+                    auftragsnummer TEXT UNIQUE,
+                    iban TEXT,
+                    iban_inhaber TEXT,
+                    bic TEXT,
+                    beschreibung TEXT,
+                    beleg TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+            console.log('Connected to Vercel Postgres and verified orders table.');
+        } finally {
+            client.release();
+        }
+    } catch (err) {
+        console.error('Error initializing database:', err);
+    }
+};
+
+initDb();
+
+module.exports = pool;
